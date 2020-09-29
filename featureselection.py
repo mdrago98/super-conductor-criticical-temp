@@ -15,6 +15,7 @@ data = read_csv(path_join('./', 'data', 'train.csv'))
 data, x, y = apply_pipeline(data, data.columns.difference(['critical_temp']), ['critical_temp'])
 
 fig, ax = train_linear_regression_pca(x, y)
+# fig.set_title('PCA improvements with the addition of components')
 fig.show()
 fig.savefig('figs/pcasteps.png')
 
@@ -28,3 +29,4 @@ benchmark = cross_val_score(regr, x, y, cv=kf_10,
                             scoring='r2').mean()
 logging.info(f'Benchmark regression training scores {benchmark} vif_score {vif_score}')
 logging.info(f'Benchmark regression generalisation scores {benchmark} vif_score {vif_score}')
+logging.info(f'VIF Components {len(x_reduced.columns)}')

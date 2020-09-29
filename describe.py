@@ -27,10 +27,5 @@ logging.info(data.corr())
 
 plt.imshow(data.corr(), cmap='hot', interpolation='nearest')
 plt.savefig('figs/heatmap.png')
-fig, ax = train_linear_regression_pca(x, y)
-fig.show()
-fig.savefig('figs/pcasteps.png')
-# transformer = ReduceVIF()
-# x = transformer.fit_transform(x, y)
-# print(x.head)
+
 

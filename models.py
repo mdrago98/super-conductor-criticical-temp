@@ -106,15 +106,14 @@ def train_linear_regression_pca(x_col, y_col, variance_threshold: float = 0.95):
     return fig, ax1
 
 
-def estimate_ridge(data, x_col, y_col, n_alphas=200):
-    data, x, y = apply_pipeline(data, x_col, y_col)
+def estimate_lin_with_reg(x, y, model=Ridge, n_alphas=200):
     kf_10 = KFold(n_splits=5, shuffle=True, random_state=2)
     alphas = logspace(-10, -2, n_alphas)
 
     scores = []
     for a in alphas:
-        ridge = Ridge(alpha=a, fit_intercept=True)
-        score = -1 * cross_val_score(ridge, x, y, cv=kf_10,
+        ridge = model(alpha=a, fit_intercept=True)
+        score = cross_val_score(ridge, x, y, cv=kf_10,
                                      scoring='r2').mean()
         scores += [score]
     fig, ax1, = plt.subplots()
@@ -122,24 +121,29 @@ def estimate_ridge(data, x_col, y_col, n_alphas=200):
     for ax in fig.axes:
         ax.set_xlabel('alpha')
         ax.set_ylabel('R2')
-    fig.show()
+    return model, fig, ax1
 
 
-def fit_random_forrest_regressor(x, y) -> tuple:
+def fit_random_model_with_cv(x, y, model=None, title='') -> tuple:
     """
     A function to evaluate a regression model and plot a learning curve
+    :param title: the chart title
+    :param model: the model default is Linear regression
     :param x: the x inputs
     :param y: the y the y inputs
     :return:
     """
+    if model is None:
+        model = LinearRegression()
     kf_10 = KFold(n_splits=5, shuffle=True, random_state=2)
-    regr = RandomForestRegressor()
-    train_sizes, train_scores, test_scores = learning_curve(regr, x, y, cv=kf_10,
+
+    train_sizes, train_scores, test_scores = learning_curve(model, x, y, cv=kf_10,
                                                             train_sizes=np.linspace(0.1, 1.0, 5),
                                                             scoring='r2', n_jobs=4)
+    model.fit(x, y)
     figure, axis = plt.subplots(1, 1, figsize=(10, 10))
-    axis = plot_learning_curve(train_scores, test_scores, axes=axis, title='Random Forrest Learning Curve')
-    return regr, figure, axis
+    axis = plot_learning_curve(train_scores, test_scores, axes=axis, title=title)
+    return model, figure, axis
 
 
 # data = read_csv(path_join('./', 'data', 'train.csv'))
